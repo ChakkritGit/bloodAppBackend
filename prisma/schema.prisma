@@ -1,0 +1,91 @@
+// schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model tb_apptransact {
+  f_appidno                       String    @id @db.VarChar(20)
+  f_appidgroup                    Int?      @default(0) @db.UnsignedInt
+  f_appidname                     String?   @db.VarChar(100)
+  f_appstepno                     Int?      @default(0) @db.UnsignedInt
+  f_appcreatebyname               String?   @db.VarChar(150)
+  f_appcreatedatetime             DateTime? @db.DateTime(0)
+  f_appcreateforhn                String?   @db.VarChar(20)
+  f_appcreateforname              String?   @db.VarChar(150)
+  f_appcreatefordatetime          DateTime? @db.DateTime(0)
+  f_appcreateconfirmname          String?   @db.VarChar(150)
+  f_appcreateconfirmdatetime      DateTime? @db.DateTime(0)
+  f_appcreatecontacttelephone     String?   @db.VarChar(15)
+  f_appcreatecontacttelephonetwo  String?   @db.VarChar(15)
+  f_appcreatecontactaddress       String?   @db.Text
+  f_appcreatecontactlat           String?   @db.VarChar(100)
+  f_appcreatecontactlon           String?   @db.VarChar(100)
+  f_appcreatecontactacc           String?   @db.VarChar(100)
+  f_appdoctorduedate              String?   @db.VarChar(10)
+  f_appadminduedate               String?   @db.VarChar(10)
+  f_appadmindueque                Int?      @default(0) @db.UnsignedInt
+  f_appadminduequemax             Int?      @default(0) @db.UnsignedInt
+  f_appadminconfirmdate           String?   @db.VarChar(12)
+  f_appadminconfirmtime           String?   @db.VarChar(12)
+  f_appadminconfirmque            Int?      @default(0) @db.UnsignedInt
+  f_appadminconfirmvisitedate     DateTime? @db.DateTime(0)
+  f_appcancelname                 String?   @db.VarChar(150)
+  f_appcanceldatetime             DateTime? @db.DateTime(0)
+  f_apppayby                      String?   @db.VarChar(50)
+  f_apppaydatetime                DateTime? @db.DateTime(0)
+  f_apppayprice                   Decimal?  @default(0.00) @db.Decimal(10, 2)
+  f_apppictureappdoc              String?   @db.VarChar(100)
+  f_apppictureappdocdatetime      DateTime? @db.DateTime(0)
+  f_apppicturelisttestdoc         String?   @db.VarChar(100)
+  f_apppicturelisttestdocdatetime DateTime? @db.DateTime(0)
+  f_apppicturebloodtube           String?   @db.VarChar(100)
+  f_apppicturebloodtubedatetime   DateTime? @db.DateTime(0)
+  f_apppictureslipdoc             String?   @db.VarChar(100)
+  f_apppictureslipdocdatetime     DateTime? @db.DateTime(0)
+  f_apppicturepatient             String?   @db.VarChar(100)
+  f_apppicturepatientdatetime     DateTime? @db.DateTime(0)
+  f_apppictureuser                String?   @db.VarChar(100)
+  f_apppictureuserdatetime        DateTime? @db.DateTime(0)
+  f_appadminvisitfullname         String?   @db.VarChar(150)
+  f_appadminvisittelephone        String?   @db.VarChar(15)
+  f_appadminvisitdatetime         DateTime? @db.DateTime(0)
+  f_apppatientproveinfodatetime   DateTime? @db.DateTime(0)
+  f_apppatientproveinfostatus     Decimal?  @default(0) @db.Decimal(1, 0)
+  f_apppatientproveinfobyname     String?   @db.VarChar(150)
+  f_appcomment                    String?   @db.VarChar(200)
+  f_appstatus                     Decimal?  @default(0) @db.Decimal(1, 0)
+  f_appbastatus                   Decimal?  @default(0) @db.Decimal(1, 0)
+  f_applastmodified               DateTime? @db.DateTime(0)
+
+  files tb_apptransactfile[]
+}
+
+model tb_apptransactfile {
+  f_appimageidno           String    @id @db.VarChar(20)
+  f_appimageidtype         Int?      @default(0) @db.UnsignedInt
+  f_appimageidname         String?   @db.VarChar(100)
+  f_appimageidpart         String?   @db.VarChar(100)
+  f_appimageidrefno        String    @db.VarChar(20)
+  f_appimageidstatus       Decimal?  @default(0) @db.Decimal(1, 0)
+  f_appimageidbastatus     Decimal?  @default(0) @db.Decimal(1, 0)
+  f_appimageidlastmodified DateTime? @db.DateTime(0)
+
+
+  transaction tb_apptransact @relation(fields: [f_appimageidrefno], references: [f_appidno])
+}
+
+model tb_user {
+  f_username         String    @id @db.VarChar(20)
+  f_userpass         String?   @db.VarChar(20)
+  f_userfullname     String?   @db.VarChar(150)
+  f_usercomment      String?   @db.VarChar(200)
+  f_userstatus       Decimal?  @default(0) @db.Decimal(1, 0)
+  f_userbastatus     Decimal?  @default(0) @db.Decimal(1, 0)
+  f_userlastmodified DateTime? @db.DateTime(0)
+}
