@@ -1,15 +1,4 @@
 import fs from 'fs'
-import path from 'path'
-
-const PROJECT_NAME = (() => {
-  try {
-    const packageJsonPath = path.join(process.cwd(), 'package.json')
-    const packageJsonContent = fs.readFileSync(packageJsonPath, 'utf8')
-    return JSON.parse(packageJsonContent).name || 'unknown-app'
-  } catch {
-    return 'unknown-app'
-  }
-})()
 
 const BRIGHT = '\x1b[1m'
 
@@ -97,7 +86,6 @@ const stripAnsi = (str: string) =>
 
 class Logger {
   private pid: string = process.pid.toString()
-  private projectName: string = PROJECT_NAME
   private maxTagLength: number = 20
 
   private formatTag (tag: string): string {
@@ -121,14 +109,13 @@ class Logger {
       const timestamp = getTimestamp()
       const pidTid = `${this.pid}-${this.pid}`.padEnd(10, ' ')
       const plainTag = this.formatTag(tag)
-      const projectNameColumn = this.projectName.padEnd(13, ' ')
       const levelIndicator = `${levelBgColor}${levelFgColor}${colors.bright} ${levelChar} ${colors.reset}`
 
-      const plainPrefix = `${timestamp} ${pidTid} ${plainTag} ${projectNameColumn} ${levelIndicator} `
+      const plainPrefix = `${timestamp} ${pidTid} ${plainTag} ${levelIndicator} `
       const indentation = ' '.repeat(stripAnsi(plainPrefix).length + 2)
 
       const coloredTag = `${getColorForTag(tag)}${plainTag}${colors.reset}`
-      const coloredPrefix = `${timestamp} ${pidTid} ${coloredTag} ${projectNameColumn} ${levelIndicator} `
+      const coloredPrefix = `${timestamp} ${pidTid} ${coloredTag} ${levelIndicator} `
 
       const fullMessage = [
         message,
