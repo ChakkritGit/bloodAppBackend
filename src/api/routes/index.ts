@@ -1,10 +1,12 @@
 import express, { Request, Response, Router, NextFunction } from 'express'
 import { BaseResponse } from '../../types/global'
 import { config } from '../../configs'
+import appointment from './appointment.route'
 
 const apiRoutes = Router()
 
 apiRoutes.use('/auth', () => {})
+apiRoutes.use('/appointment', appointment)
 apiRoutes.use(
   '/img',
   express.static(
