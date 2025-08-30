@@ -9,6 +9,7 @@ import {
   getAppointmentIdService
 } from '../services/appointment.service'
 import { HttpError } from '../../types/global'
+import { getFileUrl } from '../../utils/multer.config'
 
 export const findAppointmentById = async (
   req: Request,
@@ -43,15 +44,26 @@ export const createAppointment = async (
   next: NextFunction
 ) => {
   try {
-    const validatedBody: AppointmentRequestBody =
-      AppointmentBodyParamsSchema.parse(req.body)
+    let appointmentDocUrl: string | null = null
 
-    const result = await createAppointmentService(validatedBody)
+    if (req.files && !Array.isArray(req.files)) {
+      const files = req.files as { [fieldname: string]: Express.Multer.File[] }
+
+      const appointmentDocFile = files.appointmentDoc
+        ? files.appointmentDoc[0]
+        : null
+
+      appointmentDocUrl = getFileUrl(appointmentDocFile)
+    }
 
     res.status(201).json({
-      message: 'Success',
+      message: 'สร้างใบนัดหมายสำเร็จ',
       success: true,
-      data: result
+      data: {
+        files: {
+          appointmentDoc: appointmentDocUrl
+        }
+      }
     })
   } catch (error) {
     next(error)

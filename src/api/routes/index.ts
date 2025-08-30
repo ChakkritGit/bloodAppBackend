@@ -5,14 +5,9 @@ import appointment from './appointment.route'
 
 const apiRoutes = Router()
 
+apiRoutes.use('/images', express.static('public/images'))
 apiRoutes.use('/auth', () => {})
 apiRoutes.use('/appointment', appointment)
-apiRoutes.use(
-  '/img',
-  express.static(
-    config.nodeEnv === 'development' ? 'src/public/images' : 'public/images'
-  )
-)
 apiRoutes.use(
   '/',
   (_req: Request, res: Response<BaseResponse>, _next: NextFunction) => {
