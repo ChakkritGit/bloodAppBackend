@@ -95,7 +95,7 @@ const uploadAllAppointmentFiles = multer({
 
 const getFileUrl = (
   file: Express.Multer.File | null | undefined
-): string | null => {
+): string | null | undefined => {
   if (!file || !file.path) {
     return null
   }

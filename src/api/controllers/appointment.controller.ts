@@ -43,8 +43,11 @@ export const createAppointment = async (
   res: Response,
   next: NextFunction
 ) => {
+  let appointmentDocUrl: string | null = ''
+
   try {
-    let appointmentDocUrl: string | null = null
+    const validatedBody: AppointmentRequestBody =
+      AppointmentBodyParamsSchema.parse(req.body)
 
     if (req.files && !Array.isArray(req.files)) {
       const files = req.files as { [fieldname: string]: Express.Multer.File[] }
@@ -53,17 +56,15 @@ export const createAppointment = async (
         ? files.appointmentDoc[0]
         : null
 
-      appointmentDocUrl = getFileUrl(appointmentDocFile)
+      validatedBody.image = getFileUrl(appointmentDocFile)
     }
 
+    const result = await createAppointmentService(validatedBody)
+
     res.status(201).json({
-      message: 'สร้างใบนัดหมายสำเร็จ',
+      message: 'Success',
       success: true,
-      data: {
-        files: {
-          appointmentDoc: appointmentDocUrl
-        }
-      }
+      data: appointmentDocUrl
     })
   } catch (error) {
     next(error)
