@@ -138,3 +138,60 @@ export const createAppointmentService = async (
     throw error
   }
 }
+
+export const updateAppointmentService = async (
+  appId: string
+): Promise<tb_apptransact | null> => {
+  try {
+    const findAppoientment = await prisma.tb_apptransact.findUnique({
+      where: { f_appidno: appId },
+      include: { files: true }
+    })
+
+    if (!findAppoientment) {
+      throw new HttpError(404, 'Appointment not found.')
+    }
+
+    const groupedFiles: AppointmentWithGroupedFiles['files'] = {
+      appointment: null,
+      slip: null,
+      testListDocs: [],
+      bloodTubes: [],
+      others: []
+    }
+
+    findAppoientment.files.forEach(file => {
+      switch (file.f_appimageidtype) {
+        case 1:
+          groupedFiles.appointment = file
+          break
+        case 4:
+          groupedFiles.slip = file
+          break
+        case 2:
+          groupedFiles.testListDocs.push(file)
+          break
+        case 3:
+          groupedFiles.bloodTubes.push(file)
+          break
+        default:
+          groupedFiles.others?.push(file)
+          break
+      }
+    })
+
+    if (groupedFiles.slip) {
+      throw new HttpError(400, 'Cannot cancel appoientment.')
+    }
+
+    const result = await prisma.tb_apptransact.update({
+      where: { f_appidno: appId },
+      data: {
+        f_appstepno: 5
+      }
+    })
+    return result
+  } catch (error) {
+    throw error
+  }
+}
