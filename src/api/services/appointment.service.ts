@@ -14,6 +14,18 @@ type AppointmentWithGroupedFiles = Omit<tb_apptransact, 'files'> & {
   }
 }
 
+export const getAllAppointmentIdService = async (): Promise<
+  tb_apptransact[] | null
+> => {
+  try {
+    const result = await prisma.tb_apptransact.findMany()
+
+    return result
+  } catch (error) {
+    throw error
+  }
+}
+
 export const getAppointmentIdService = async (
   appointmentId: string
 ): Promise<tb_apptransact | null> => {

@@ -6,11 +6,30 @@ import {
 } from '../../validators/appointment.validator'
 import {
   createAppointmentService,
+  getAllAppointmentIdService,
   getAppointmentIdService,
   searchAppointmentIdService
 } from '../services/appointment.service'
 import { HttpError } from '../../types/global'
 import { getFileUrl } from '../../utils/multer.config'
+
+export const getAllAppointment = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const result = await getAllAppointmentIdService()
+
+    res.status(200).json({
+      message: 'Success',
+      success: true,
+      data: result
+    })
+  } catch (error) {
+    next(error)
+  }
+}
 
 export const findAppointmentById = async (
   req: Request,
