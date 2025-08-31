@@ -6,7 +6,8 @@ import {
 } from '../../validators/appointment.validator'
 import {
   createAppointmentService,
-  getAppointmentIdService
+  getAppointmentIdService,
+  searchAppointmentIdService
 } from '../services/appointment.service'
 import { HttpError } from '../../types/global'
 import { getFileUrl } from '../../utils/multer.config'
@@ -27,6 +28,33 @@ export const findAppointmentById = async (
     }
 
     const result = await getAppointmentIdService(validatedParams.data?.id)
+
+    res.status(200).json({
+      message: 'Success',
+      success: true,
+      data: result
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+
+export const searchAppointmentById = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const validatedParams = AppointmentIdParamsSchema.safeParse(req.params)
+
+    if (validatedParams.error) {
+      const firstIssue = validatedParams.error.issues[0]
+      const message = firstIssue.message
+
+      throw new HttpError(403, message)
+    }
+
+    const result = await searchAppointmentIdService(validatedParams.data?.id)
 
     res.status(200).json({
       message: 'Success',

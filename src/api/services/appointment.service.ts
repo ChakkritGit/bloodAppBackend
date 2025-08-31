@@ -2,16 +2,80 @@ import { tb_apptransact } from '@prisma/client'
 import prisma from '../../configs/prisma'
 import { AppointmentRequestBody } from '../../validators/appointment.validator'
 import { v4 as uuidv4 } from 'uuid'
+import { HttpError } from '../../types/global'
+
+type AppointmentWithGroupedFiles = Omit<tb_apptransact, 'files'> & {
+  files: {
+    appointment?: any
+    slip?: any
+    testListDocs: any[]
+    bloodTubes: any[]
+    others?: any[]
+  }
+}
 
 export const getAppointmentIdService = async (
   appointmentId: string
-): Promise<tb_apptransact | null> => {
+): Promise<string | undefined> => {
   try {
     const result = await prisma.tb_apptransact.findUnique({
-      where: { f_appidno: appointmentId }
+      where: { f_appidno: appointmentId },
+      include: {
+        files: true
+      }
     })
 
-    return result
+    return result?.f_appidno ?? '-'
+  } catch (error) {
+    throw error
+  }
+}
+
+export const searchAppointmentIdService = async (
+  appointmentId: string
+): Promise<AppointmentWithGroupedFiles | null> => {
+  try {
+    const result = await prisma.tb_apptransact.findUnique({
+      where: { f_appidno: appointmentId },
+      include: {
+        files: true
+      }
+    })
+
+    if (!result) throw new HttpError(404, 'Appointment number not found.')
+
+    const groupedFiles: AppointmentWithGroupedFiles['files'] = {
+      appointment: null,
+      slip: null,
+      testListDocs: [],
+      bloodTubes: [],
+      others: []
+    }
+
+    result.files.forEach(file => {
+      switch (file.f_appimageidtype) {
+        case 1:
+          groupedFiles.appointment = file
+          break
+        case 4:
+          groupedFiles.slip = file
+          break
+        case 2:
+          groupedFiles.testListDocs.push(file)
+          break
+        case 3:
+          groupedFiles.bloodTubes.push(file)
+          break
+        default:
+          groupedFiles.others?.push(file)
+          break
+      }
+    })
+
+    return {
+      ...result,
+      files: groupedFiles
+    }
   } catch (error) {
     throw error
   }
@@ -19,7 +83,7 @@ export const getAppointmentIdService = async (
 
 export const createAppointmentService = async (
   appointmentData: AppointmentRequestBody
-): Promise<tb_apptransact | null> => {
+): Promise<string | null> => {
   try {
     const {
       f_appcreatebyname,
@@ -54,11 +118,12 @@ export const createAppointmentService = async (
           create: {
             f_appimageidno: UUID,
             f_appimageidpart: image,
+            f_appimageidtype: 1
           }
         }
       }
     })
-    return result
+    return result.f_appidno
   } catch (error) {
     throw error
   }
