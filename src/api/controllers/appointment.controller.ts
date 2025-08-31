@@ -64,7 +64,7 @@ export const createAppointment = async (
     res.status(201).json({
       message: 'Success',
       success: true,
-      data: appointmentDocUrl
+      data: result
     })
   } catch (error) {
     next(error)

@@ -67,7 +67,7 @@ model tb_apptransact {
 }
 
 model tb_apptransactfile {
-  f_appimageidno           String    @id @db.VarChar(20)
+  f_appimageidno           String    @id @db.VarChar(256)
   f_appimageidtype         Int?      @default(0) @db.UnsignedInt
   f_appimageidname         String?   @db.VarChar(100)
   f_appimageidpart         String?   @db.VarChar(100)

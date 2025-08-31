@@ -106,6 +106,36 @@ const getFileUrl = (
   return relativePath
 }
 
+export const deleteFile = async (
+  fileUrl: string | null | undefined
+): Promise<void> => {
+  if (!fileUrl) {
+    return
+  }
+
+  try {
+    const filePath = path.join(process.cwd(), `public${fileUrl}`)
+
+    await fs.promises.unlink(filePath)
+    console.log(`Successfully deleted file: ${filePath}`)
+  } catch (error) {
+    if (typeof error === 'object' && error !== null && 'code' in error) {
+      const nodeError = error as { code: string }
+
+      if (nodeError.code === 'ENOENT') {
+        console.warn(`File not found, could not delete: ${fileUrl}`)
+      } else {
+        console.error(`Error deleting file ${fileUrl}:`, error)
+      }
+    } else {
+      console.error(
+        `An unexpected error occurred while deleting ${fileUrl}:`,
+        error
+      )
+    }
+  }
+}
+
 export {
   uploadAppointmentDoc,
   uploadTestListDocs,

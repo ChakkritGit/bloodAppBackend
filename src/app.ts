@@ -8,7 +8,7 @@ import { config } from './configs'
 const app = express()
 
 app.use(
-  cors({ origin: [String(config.frontEndUrl), 'http://192.168.0.128:3007', 'http://192.168.137.1:3007'] })
+  cors({ origin: [String(config.frontEndUrl), 'http://192.168.0.128:3007', 'http://192.168.1.223:3007'] })
 )
 app.use(express.json())
 app.use(httpLoggerMiddleware)
