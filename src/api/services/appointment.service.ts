@@ -16,16 +16,13 @@ type AppointmentWithGroupedFiles = Omit<tb_apptransact, 'files'> & {
 
 export const getAppointmentIdService = async (
   appointmentId: string
-): Promise<string | undefined> => {
+): Promise<tb_apptransact | null> => {
   try {
     const result = await prisma.tb_apptransact.findUnique({
-      where: { f_appidno: appointmentId },
-      include: {
-        files: true
-      }
+      where: { f_appidno: appointmentId }
     })
 
-    return result?.f_appidno ?? '-'
+    return result
   } catch (error) {
     throw error
   }
@@ -104,6 +101,7 @@ export const createAppointmentService = async (
     const result = await prisma.tb_apptransact.create({
       data: {
         f_appidno: f_appidno as string,
+        f_appstepno: 1,
         f_appcreatebyname,
         f_appcreatecontactaddress,
         f_appcreatecontactlat,

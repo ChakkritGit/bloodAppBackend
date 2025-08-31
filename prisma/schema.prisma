@@ -76,16 +76,16 @@ model tb_apptransactfile {
   f_appimageidbastatus     Decimal?  @default(0) @db.Decimal(1, 0)
   f_appimageidlastmodified DateTime? @db.DateTime(0)
 
-
   transaction tb_apptransact @relation(fields: [f_appimageidrefno], references: [f_appidno])
 }
 
 model tb_user {
-  f_username         String    @id @db.VarChar(20)
-  f_userpass         String?   @db.VarChar(20)
+  f_id               String    @db.VarChar(256)
+  f_username         String    @id @db.VarChar(64)
+  f_userpass         String    @db.VarChar(256)
   f_userfullname     String?   @db.VarChar(150)
   f_usercomment      String?   @db.VarChar(200)
-  f_userstatus       Decimal?  @default(0) @db.Decimal(1, 0)
-  f_userbastatus     Decimal?  @default(0) @db.Decimal(1, 0)
+  f_userstatus       Int?      @default(0)
+  f_userbastatus     Int?      @default(0)
   f_userlastmodified DateTime? @db.DateTime(0)
 }

@@ -58,7 +58,7 @@ CREATE TABLE `tb_apptransact` (
 
 -- CreateTable
 CREATE TABLE `tb_apptransactfile` (
-    `f_appimageidno` VARCHAR(20) NOT NULL,
+    `f_appimageidno` VARCHAR(256) NOT NULL,
     `f_appimageidtype` INTEGER UNSIGNED NULL DEFAULT 0,
     `f_appimageidname` VARCHAR(100) NULL,
     `f_appimageidpart` VARCHAR(100) NULL,
@@ -72,12 +72,13 @@ CREATE TABLE `tb_apptransactfile` (
 
 -- CreateTable
 CREATE TABLE `tb_user` (
+    `f_id` VARCHAR(256) NOT NULL,
     `f_username` VARCHAR(20) NOT NULL,
-    `f_userpass` VARCHAR(20) NULL,
+    `f_userpass` VARCHAR(20) NOT NULL,
     `f_userfullname` VARCHAR(150) NULL,
     `f_usercomment` VARCHAR(200) NULL,
-    `f_userstatus` DECIMAL(1, 0) NULL DEFAULT 0,
-    `f_userbastatus` DECIMAL(1, 0) NULL DEFAULT 0,
+    `f_userstatus` INTEGER NULL DEFAULT 0,
+    `f_userbastatus` INTEGER NULL DEFAULT 0,
     `f_userlastmodified` DATETIME(0) NULL,
 
     PRIMARY KEY (`f_username`)

@@ -4,7 +4,7 @@ import { uploadAllAppointmentFiles } from '../../utils/multer.config'
 
 const appointment = Router()
 
-appointment.get('/:id', findAppointmentById)
+appointment.get('/check/:id', findAppointmentById)
 appointment.get('/search/:id', searchAppointmentById)
 appointment.post('/', uploadAllAppointmentFiles, createAppointment)
 
