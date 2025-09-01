@@ -3,6 +3,8 @@ import prisma from '../../configs/prisma'
 import { AppointmentRequestBody } from '../../validators/appointment.validator'
 import { v4 as uuidv4 } from 'uuid'
 import { HttpError } from '../../types/global'
+import { startOfDay, endOfDay } from 'date-fns'
+import { getDateFormat } from '../../utils/date.format'
 
 type AppointmentWithGroupedFiles = Omit<tb_apptransact, 'files'> & {
   files: {
@@ -32,6 +34,34 @@ export const getAppointmentIdService = async (
   try {
     const result = await prisma.tb_apptransact.findUnique({
       where: { f_appidno: appointmentId }
+    })
+
+    return result
+  } catch (error) {
+    throw error
+  }
+}
+
+export const getAppointmentQueueTodayService = async (): Promise<
+  {
+    f_appadmindueque: number | null
+  }[]
+> => {
+  try {
+    const todayStart = startOfDay(new Date())
+    const todayEnd = endOfDay(new Date())
+
+    const result = await prisma.tb_apptransact.findMany({
+      where: {
+        f_appcreatedatetime: {
+          gte: todayStart,
+          lte: todayEnd
+        }
+      },
+      select: {
+        f_appidno: true,
+        f_appadmindueque: true
+      }
     })
 
     return result
@@ -124,6 +154,7 @@ export const createAppointmentService = async (
         f_appcreateforname,
         f_appdoctorduedate,
         f_apppictureappdoc,
+        f_appcreatedatetime: getDateFormat(new Date()),
         files: {
           create: {
             f_appimageidno: UUID,

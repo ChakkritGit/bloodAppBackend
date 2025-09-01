@@ -8,6 +8,7 @@ import {
   createAppointmentService,
   getAllAppointmentIdService,
   getAppointmentIdService,
+  getAppointmentQueueTodayService,
   searchAppointmentIdService,
   updateAppointmentService
 } from '../services/appointment.service'
@@ -48,6 +49,24 @@ export const findAppointmentById = async (
     }
 
     const result = await getAppointmentIdService(validatedParams.data?.id)
+
+    res.status(200).json({
+      message: 'Success',
+      success: true,
+      data: result
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+
+export const getAppointmentQueueToday = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const result = await getAppointmentQueueTodayService()
 
     res.status(200).json({
       message: 'Success',
