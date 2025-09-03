@@ -31,7 +31,7 @@ export const UpdateAppointmentBodySchema = z
     }, z.date().optional()),
 
     f_appadminduedate: z.string().optional(),
-    f_appadmindueque: z.preprocess(arg => {
+    f_appadminduequemax: z.preprocess(arg => {
       if (typeof arg === 'string') return parseInt(arg, 10)
       return arg
     }, z.number().int().optional()),
