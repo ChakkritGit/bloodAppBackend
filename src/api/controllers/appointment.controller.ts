@@ -2,7 +2,9 @@ import { NextFunction, Request, Response } from 'express'
 import {
   AppointmentBodyParamsSchema,
   AppointmentIdParamsSchema,
-  AppointmentRequestBody
+  AppointmentParamsSchema,
+  AppointmentRequestBody,
+  UpdateAppointmentBodySchema
 } from '../../validators/appointment.validator'
 import {
   createAppointmentService,
@@ -10,10 +12,11 @@ import {
   getAppointmentIdService,
   getAppointmentQueueTodayService,
   searchAppointmentIdService,
-  updateAppointmentService
+  updateAppointmentService,
+  updateAppointmentWithDocService
 } from '../services/appointment.service'
 import { HttpError } from '../../types/global'
-import { getFileUrl } from '../../utils/multer.config'
+import { deleteFile, getFileUrl } from '../../utils/multer.config'
 
 export const getAllAppointment = async (
   req: Request,
@@ -161,6 +164,50 @@ export const updateStatusAppointment = async (
       data: result
     })
   } catch (error) {
+    next(error)
+  }
+}
+
+export const updateAppointment = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { id } = AppointmentParamsSchema.parse(req.params)
+    const body = UpdateAppointmentBodySchema.parse(req.body)
+
+    const files =
+      (req.files as { [fieldname: string]: Express.Multer.File[] }) || {}
+
+    const result = await updateAppointmentWithDocService(id, body, files)
+
+    res.status(200).json({
+      message: 'Appointment updated successfully',
+      success: true,
+      data: result
+    })
+  } catch (error) {
+    if (req.files && !Array.isArray(req.files)) {
+      console.log(
+        'An error occurred during update. Cleaning up uploaded files...'
+      )
+
+      const files = req.files as { [fieldname: string]: Express.Multer.File[] }
+
+      const cleanupPromises: Promise<void>[] = []
+
+      Object.values(files).forEach(fileArray => {
+        fileArray.forEach(file => {
+          const fileUrl = file.path.replace(/\\/g, '/').replace('public', '')
+          cleanupPromises.push(deleteFile(fileUrl))
+        })
+      })
+
+      await Promise.allSettled(cleanupPromises)
+      console.log('Cleanup complete.')
+    }
+
     next(error)
   }
 }

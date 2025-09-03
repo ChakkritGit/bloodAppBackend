@@ -136,11 +136,35 @@ export const deleteFile = async (
   }
 }
 
+const deleteMultipleFiles = async (
+  fileUrls: (string | null | undefined)[] | null | undefined
+): Promise<void> => {
+  if (!fileUrls || fileUrls.length === 0) {
+    return
+  }
+
+  const validUrls = fileUrls.filter((url): url is string => !!url)
+
+  const deletionPromises = validUrls.map(url => deleteFile(url))
+
+  const results = await Promise.allSettled(deletionPromises)
+
+  results.forEach((result, index) => {
+    if (result.status === 'rejected') {
+      console.error(
+        `Failed to delete file (from multi-delete): ${validUrls[index]}`,
+        result.reason
+      )
+    }
+  })
+}
+
 export {
   uploadAppointmentDoc,
   uploadTestListDocs,
   uploadBloodTubes,
   uploadSlipDoc,
   uploadAllAppointmentFiles,
-  getFileUrl
+  getFileUrl,
+  deleteMultipleFiles
 }

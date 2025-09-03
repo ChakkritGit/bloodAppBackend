@@ -1,10 +1,19 @@
-import { tb_apptransact } from '@prisma/client'
+import { Prisma, tb_apptransact } from '@prisma/client'
 import prisma from '../../configs/prisma'
-import { AppointmentRequestBody } from '../../validators/appointment.validator'
+import {
+  AppointmentRequestBody,
+  UpdateAppointmentBody
+} from '../../validators/appointment.validator'
 import { v4 as uuidv4 } from 'uuid'
 import { HttpError } from '../../types/global'
 import { startOfDay, endOfDay } from 'date-fns'
 import { getDateFormat } from '../../utils/date.format'
+import { ProcessedFiles } from '../../types/appoinetmentType'
+import {
+  deleteFile,
+  deleteMultipleFiles,
+  getFileUrl
+} from '../../utils/multer.config'
 
 type AppointmentWithGroupedFiles = Omit<tb_apptransact, 'files'> & {
   files: {
@@ -225,4 +234,124 @@ export const updateAppointmentService = async (
   } catch (error) {
     throw error
   }
+}
+
+export const updateAppointmentWithDocService = async (
+  appointmentId: string,
+  body: UpdateAppointmentBody,
+  files: { [fieldname: string]: Express.Multer.File[] }
+) => {
+  const existingAppointment = await prisma.tb_apptransact.findUnique({
+    where: { f_appidno: appointmentId },
+    include: { files: true }
+  })
+
+  if (!existingAppointment) {
+    throw new Error('Appointment not found')
+  }
+
+  const newFiles: ProcessedFiles = {}
+  if (files.slipDoc) {
+    newFiles.slipDocUrl = getFileUrl(files.slipDoc[0])
+  }
+  if (files.testListDocs) {
+    newFiles.testListDocUrls = files.testListDocs.map(getFileUrl)
+  }
+  if (files.bloodTubes) {
+    newFiles.bloodTubeUrls = files.bloodTubes.map(getFileUrl)
+  }
+
+  let newStep = existingAppointment.f_appstepno || 0
+
+  if (body.f_appcreateconfirmname) {
+    newStep = Math.max(newStep, 2)
+  }
+
+  if ((files.testListDocs && files.testListDocs.length > 0) || files.slipDoc) {
+    newStep = Math.max(newStep, 4)
+  }
+
+  const dataToUpdate: Prisma.tb_apptransactUpdateInput = {
+    ...body,
+    f_appstepno: newStep
+  }
+
+  return prisma.$transaction(async tx => {
+    if (body.removedImageIds && body.removedImageIds.length > 0) {
+      const filesToDelete = existingAppointment.files.filter(f =>
+        body.removedImageIds!.includes(f.f_appimageidno)
+      )
+
+      await deleteMultipleFiles(filesToDelete.map(f => f.f_appimageidpart))
+
+      await tx.tb_apptransactfile.deleteMany({
+        where: { f_appimageidno: { in: body.removedImageIds } }
+      })
+    }
+
+    const fileCreationPromises: Prisma.PrismaPromise<any>[] = []
+
+    if (newFiles.testListDocUrls) {
+      newFiles.testListDocUrls.forEach(url => {
+        if (url) {
+          fileCreationPromises.push(
+            tx.tb_apptransactfile.create({
+              data: {
+                f_appimageidno: `Image-${uuidv4()}`,
+                f_appimageidpart: url,
+                f_appimageidtype: 2,
+                f_appimageidrefno: appointmentId
+              }
+            })
+          )
+        }
+      })
+    }
+    if (newFiles.bloodTubeUrls) {
+      newFiles.bloodTubeUrls.forEach(url => {
+        if (url) {
+          fileCreationPromises.push(
+            tx.tb_apptransactfile.create({
+              data: {
+                f_appimageidno: `Image-${uuidv4()}`,
+                f_appimageidpart: url,
+                f_appimageidtype: 3,
+                f_appimageidrefno: appointmentId
+              }
+            })
+          )
+        }
+      })
+    }
+    if (newFiles.slipDocUrl) {
+      const oldSlip = existingAppointment.files.find(
+        f => f.f_appimageidtype === 4
+      )
+      if (oldSlip) {
+        await deleteFile(oldSlip.f_appimageidpart)
+        await tx.tb_apptransactfile.delete({
+          where: { f_appimageidno: oldSlip.f_appimageidno }
+        })
+      }
+      fileCreationPromises.push(
+        tx.tb_apptransactfile.create({
+          data: {
+            f_appimageidno: `Image-${uuidv4()}`,
+            f_appimageidpart: newFiles.slipDocUrl,
+            f_appimageidtype: 4,
+            f_appimageidrefno: appointmentId
+          }
+        })
+      )
+    }
+
+    await Promise.all(fileCreationPromises)
+
+    const updatedAppointment = await tx.tb_apptransact.update({
+      where: { f_appidno: appointmentId },
+      data: dataToUpdate
+    })
+
+    return updatedAppointment
+  })
 }

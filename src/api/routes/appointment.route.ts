@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { createAppointment, findAppointmentById, getAllAppointment, getAppointmentQueueToday, searchAppointmentById, updateStatusAppointment } from '../controllers/appointment.controller'
+import { createAppointment, findAppointmentById, getAllAppointment, getAppointmentQueueToday, searchAppointmentById, updateAppointment, updateStatusAppointment } from '../controllers/appointment.controller'
 import { uploadAllAppointmentFiles } from '../../utils/multer.config'
 
 const appointment = Router()
@@ -11,5 +11,6 @@ appointment.get('/queue', getAppointmentQueueToday)
 appointment.post('/', uploadAllAppointmentFiles, createAppointment)
 appointment.patch('/status/:id', updateStatusAppointment)
 appointment.patch('/confirm/:id', updateStatusAppointment)
+appointment.put('/:id', uploadAllAppointmentFiles, updateAppointment)
 
 export default appointment

@@ -19,8 +19,38 @@ export const AppointmentBodyParamsSchema = z.object({
   image: z.string().optional().nullable()
 })
 
+export const AppointmentParamsSchema = z.object({
+  id: z.string().min(1, 'Appointment ID is required')
+})
+
+export const UpdateAppointmentBodySchema = z
+  .object({
+    f_appcreateconfirmname: z.string().optional(),
+    f_appcreateconfirmdatetime: z.preprocess(arg => {
+      if (typeof arg == 'string' || arg instanceof Date) return new Date(arg)
+    }, z.date().optional()),
+
+    f_appadminduedate: z.string().optional(),
+    f_appadmindueque: z.preprocess(arg => {
+      if (typeof arg === 'string') return parseInt(arg, 10)
+      return arg
+    }, z.number().int().optional()),
+
+    f_appadminconfirmvisitedate: z.preprocess(arg => {
+      if (typeof arg == 'string' || arg instanceof Date) return new Date(arg)
+    }, z.date().optional()),
+
+    f_apppatientproveinfobyname: z.string().optional(),
+
+    removedImageIds: z.preprocess(arg => {
+      if (typeof arg === 'string') return JSON.parse(arg)
+      return arg
+    }, z.array(z.string()).optional())
+  })
+  .partial()
+
+export type UpdateAppointmentBody = z.infer<typeof UpdateAppointmentBodySchema>
 export type AppointmentIdRequestParams = z.infer<
   typeof AppointmentIdParamsSchema
 >
-
 export type AppointmentRequestBody = z.infer<typeof AppointmentBodyParamsSchema>
