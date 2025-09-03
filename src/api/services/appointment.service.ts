@@ -53,7 +53,7 @@ export const getAppointmentIdService = async (
 
 export const getAppointmentQueueTodayService = async (): Promise<
   {
-    f_appadmindueque: number | null
+    f_appadminduequemax: number | null
   }[]
 > => {
   try {
@@ -69,7 +69,7 @@ export const getAppointmentQueueTodayService = async (): Promise<
       },
       select: {
         f_appidno: true,
-        f_appadmindueque: true
+        f_appadminduequemax: true
       }
     })
 
