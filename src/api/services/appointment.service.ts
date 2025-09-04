@@ -286,7 +286,11 @@ export const updateAppointmentWithDocService = async (
   }
 
   if (f_appadminconfirmvisitedate) {
-    const localDate = new Date(f_appadminconfirmvisitedate)
+    const inputDate = new Date(f_appadminconfirmvisitedate)
+
+    const localDate = new Date(
+      inputDate.getTime() - inputDate.getTimezoneOffset() * 60000
+    )
 
     dataToUpdate.f_appadminconfirmvisitedate = localDate
   }
