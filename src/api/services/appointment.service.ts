@@ -267,7 +267,10 @@ export const updateAppointmentWithDocService = async (
     newStep = Math.max(newStep, 2)
   }
 
-  if (files.testListDocs && files.testListDocs.length > 0 || files.bloodTubes && files.bloodTubes.length > 0) {
+  if (
+    (files.testListDocs && files.testListDocs.length > 0) ||
+    (files.bloodTubes && files.bloodTubes.length > 0)
+  ) {
     newStep = Math.max(newStep, 3)
   }
 
@@ -275,9 +278,17 @@ export const updateAppointmentWithDocService = async (
     newStep = Math.max(newStep, 4)
   }
 
+  const { f_appadminconfirmvisitedate, ...restOfBody } = body
+
   const dataToUpdate: Prisma.tb_apptransactUpdateInput = {
-    ...body,
+    ...restOfBody,
     f_appstepno: newStep
+  }
+
+  if (f_appadminconfirmvisitedate) {
+    const localDate = new Date(f_appadminconfirmvisitedate)
+
+    dataToUpdate.f_appadminconfirmvisitedate = localDate
   }
 
   return prisma.$transaction(async tx => {
