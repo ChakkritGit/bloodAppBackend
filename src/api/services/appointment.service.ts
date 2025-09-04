@@ -62,7 +62,7 @@ export const getAppointmentQueueTodayService = async (): Promise<
 
     const result = await prisma.tb_apptransact.findMany({
       where: {
-        f_appcreatedatetime: {
+        f_appadminconfirmvisitedate: {
           gte: todayStart,
           lte: todayEnd
         }
