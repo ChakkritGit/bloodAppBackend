@@ -267,7 +267,11 @@ export const updateAppointmentWithDocService = async (
     newStep = Math.max(newStep, 2)
   }
 
-  if ((files.testListDocs && files.testListDocs.length > 0) || files.slipDoc) {
+  if (files.testListDocs && files.testListDocs.length > 0 || files.bloodTubes && files.bloodTubes.length > 0) {
+    newStep = Math.max(newStep, 3)
+  }
+
+  if (files.slipDoc) {
     newStep = Math.max(newStep, 4)
   }
 
