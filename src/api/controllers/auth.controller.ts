@@ -5,7 +5,26 @@ import {
   AuthRegisterBodySchema,
   AuthRegisterRequestBody
 } from '../../validators/auth.validator'
-import { loginService, registerService } from '../services/auth.service'
+import { getUserService, loginService, registerService } from '../services/auth.service'
+
+export const getUserController = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+
+    const result = await getUserService()
+
+    res.status(200).json({
+      message: 'Success',
+      success: true,
+      data: result
+    })
+  } catch (error) {
+    next(error)
+  }
+}
 
 export const loginController = async (
   req: Request,

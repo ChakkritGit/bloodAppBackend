@@ -9,6 +9,16 @@ import prisma from '../../configs/prisma'
 import { hashPassword, hashPasswordCompare } from '../../utils/hash'
 import { v4 as uuidv4 } from 'uuid'
 
+export const getUserService = async (): Promise<tb_user[]> => {
+  try {
+    const result = await prisma.tb_user.findMany()
+
+    return result
+  } catch (error) {
+    throw error
+  }
+}
+
 export const loginService = async (
   authBody: AuthLoginRequestBody
 ): Promise<tb_user | null> => {
